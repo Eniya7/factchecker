@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📰 VeriNews AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Dark/Light Mode Toggle -->
+<button class="toggle" onclick="toggleMode()">🌙</button>
+
+<div class="container">
+
+    <h1>🧠 VeriNews AI</h1>
+    <p>Smart AI-powered news verification system</p>
+    <p class="subtext">Detect fake news instantly using machine learning</p>
+
+    <!-- News Input Form -->
+    <form method="POST" onsubmit="showLoader()">
+        <textarea name="news" id="news" placeholder="Paste or type news here...">{{ news_text if news_text else '' }}</textarea>
+        <div class="buttons">
+            <button type="submit">🔍 Analyze</button>
+        </div>
+    </form>
+
+    <!-- Loader -->
+    <div id="loader" class="loader"></div>
+
+    <!-- Result Box -->
+    {% if result %}
+    <div class="result-box {{ result }}">
+        <h2>{{ result }} NEWS</h2>
+        <p>Confidence: {{ confidence }}%</p>
+        <div class="progress">
+            <div class="bar" id="progressBar" style="width: {{ confidence }}%;"></div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<footer>
+    © 2026 VeriNews AI | Intelligent Misinformation Detection System
+</footer>
+
+<script>
+    // Toggle light/dark mode
+    function toggleMode() {
+        document.body.classList.toggle("light");
+    }
+
+    // Show loader on form submit
+    function showLoader() {
+        const loader = document.getElementById("loader");
+        if(loader) loader.style.display = "block";
+    }
+
+    // Animate progress bar safely
+    document.addEventListener("DOMContentLoaded", function() {
+        const bar = document.getElementById("progressBar");
+        if(bar) {
+            let width = parseInt("{{ confidence | default(0) }}");
+            bar.style.width = width + "%";
+        }
+    });
+</script>
+
+</body>
+</html>

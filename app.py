@@ -1,47 +1,25 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from flask import Flask, render_template, request
+from model import predict_news
 
-# Sample dataset
-data = {
-    "text": [
-        "Government launches new health scheme",
-        "Aliens landed in Chennai yesterday",
-        "Stock market reaches new high",
-        "Drinking bleach cures COVID",
-        "New education policy introduced"
-    ],
-    "label": [1, 0, 1, 0, 1]  # 1 = Real, 0 = Fake
-}
+app = Flask(__name__)
 
-df = pd.DataFrame(data)
+@app.route("/", methods=["GET", "POST"])
+def home():
+    result = None
+    confidence = 0
+    news_text = ''
 
-# Split data
-X_train, X_test, y_train, y_test = train_test_split(
-    df["text"], df["label"], test_size=0.2, random_state=42
-)
+    if request.method == "POST":
+        news_text = request.form.get("news", "")
+        if news_text.strip() != "":
+            result, confidence = predict_news(news_text)
 
-# Convert text to numbers
-vectorizer = TfidfVectorizer()
-X_train_vec = vectorizer.fit_transform(X_train)
-X_test_vec = vectorizer.transform(X_test)
+    return render_template(
+        "index.html",
+        result=result,
+        confidence=confidence,
+        news_text=news_text
+    )
 
-# Train model
-model = LogisticRegression()
-model.fit(X_train_vec, y_train)
-
-# Test accuracy
-y_pred = model.predict(X_test_vec)
-print("Accuracy:", accuracy_score(y_test, y_pred))
-
-# Prediction function
-def check_news(news):
-    news_vec = vectorizer.transform([news])
-    prediction = model.predict(news_vec)
-    return "Real News ✅" if prediction[0] == 1 else "Fake News ❌"
-
-# Test
-user_input = input("Enter news: ")
-print(check_news(user_input))
+if __name__ == "__main__":
+    app.run(debug=True)
